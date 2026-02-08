@@ -122,6 +122,21 @@ fn test_set_empty_password() {
 }
 
 #[test]
+fn test_redact_password() {
+    let mut base: Url = "https://username:passsword@example.com/path".parse().unwrap();
+    assert_eq!(format!("{}", base.redact_password()), "https://username@example.com/path");
+
+    base.set_password(None).unwrap();
+    assert_eq!(format!("{}", base.redact_password()), "https://username@example.com/path");
+
+    base.set_username("").unwrap();
+    assert_eq!(format!("{}", base.redact_password()), "https://example.com/path");
+
+    base.set_password(Some("")).unwrap();
+    assert_eq!(format!("{}", base.redact_password()), "https://example.com/path");
+}
+
+#[test]
 fn test_set_empty_hostname() {
     use url::quirks;
     let mut base: Url = "moz://foo@servo/baz".parse().unwrap();

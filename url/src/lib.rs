@@ -2261,6 +2261,34 @@ impl Url {
         Ok(())
     }
 
+    /// Redact the password portion of the URL.
+    ///
+    /// Sets the password to [`None`] and returns a [`core::fmt::Display`]. For display purposes only,
+    /// for use in logs, for example.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use url::{Url, ParseError};
+    ///
+    /// # fn run() -> Result<(), ParseError> {
+    /// let url = Url::parse("https://username:passsword@example.com")?;
+    /// let redacted = url.redact_password();
+    /// assert_eq!(format!("{redacted}"), "https://username@example.com");
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[allow(clippy::result_unit_err)]
+    pub fn redact_password(&self) -> impl core::fmt::Display {
+        if self.password().is_some() {
+            let mut url = self.clone();
+            url.set_password(None).unwrap_or(());
+            url.to_string()
+        } else {
+            self.to_string()
+        }
+    }
+
     /// Change this URL’s username.
     ///
     /// If this URL is cannot-be-a-base or does not have a host, do nothing and return `Err`.
